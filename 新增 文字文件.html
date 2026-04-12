@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>門市移動時間查詢工具</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            appearance: none; /* 讓手機下拉選單更好看 */
+            background-color: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            background-color: #e50012; /* Sukiya 紅色風格 */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:active {
+            background-color: #b3000e;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #e50012;
+            border-radius: 4px;
+            text-align: center;
+            display: none; /* 初始隱藏 */
+        }
+        .result-time {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>⏱️ 移動時間查詢</h2>
+    
+    <div class="form-group">
+        <label for="startStation">出發起站</label>
+        <select id="startStation">
+            <option value="">-- 請選擇起站 --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="endStation">到達迄站</label>
+        <select id="endStation">
+            <option value="">-- 請選擇迄站 --</option>
+        </select>
+    </div>
+
+    <button onclick="calculateTime()">查詢時間</button>
+
+    <div class="result-box" id="resultBox">
+        <div id="resultText">預估移動時間</div>
+        <div class="result-time" id="timeValue">--</div>
+    </div>
+</div>
+
+<script src="data.js"></script>
+
+<script>
+    // 網頁載入時，把 data.js 裡的車站名單塞進下拉選單
+    window.onload = function() {
+        if (typeof stationList === 'undefined') {
+            alert("找不到資料檔 (data.js)，請確認檔案是否放在同一資料夾！");
+            return;
+        }
+        
+        // 將清單按筆畫或拼音排序，方便尋找
+        stationList.sort();
+
+        let startSelect = document.getElementById("startStation");
+        let endSelect = document.getElementById("endStation");
+
+        stationList.forEach(station => {
+            let opt1 = document.createElement("option");
+            opt1.value = station;
+            opt1.text = station;
+            startSelect.add(opt1);
+
+            let opt2 = document.createElement("option");
+            opt2.value = station;
+            opt2.text = station;
+            endSelect.add(opt2);
+        });
+    };
+
+    // 完美重現你原本的 VBA 加強匹配邏輯
+    function calculateTime() {
+        let start = document.getElementById("startStation").value;
+        let end = document.getElementById("endStation").value;
+        let resultBox = document.getElementById("resultBox");
+        let timeValue = document.getElementById("timeValue");
+
+        if (start === "" || end === "") {
+            alert("請完整選擇起站與迄站！");
+            return;
+        }
+
+        if (start === end) {
+            resultBox.style.display = "block";
+            timeValue.innerHTML = "0 小時";
+            timeValue.style.color = "#333";
+            return;
+        }
+
+        let maxTime = 0;
+        let key1 = start + "|" + end; // 正向查找鍵值
+        let key2 = end + "|" + start; // 反向查找鍵值
+
+        // 正向查找
+        if (timeMatrix[key1] !== undefined) {
+            if (timeMatrix[key1] > maxTime) maxTime = timeMatrix[key1];
+        }
+
+        // 反向查找
+        if (timeMatrix[key2] !== undefined) {
+            if (timeMatrix[key2] > maxTime) maxTime = timeMatrix[key2];
+        }
+
+        resultBox.style.display = "block";
+
+        if (maxTime > 0) {
+            // 將分鐘轉換為小時，並取到小數點後兩位
+            let hours = maxTime / 60;
+            // 處理浮點數顯示，若為整數則不顯示小數
+            let displayHours = Number.isInteger(hours) ? hours : hours.toFixed(2); 
+            timeValue.innerHTML = displayHours + " <span style='font-size:18px;'>小時</span>";
+            timeValue.style.color = "#e50012";
+        } else {
+            timeValue.innerHTML = "<span style='font-size:20px;'>無匹配路線</span>";
+            timeValue.style.color = "#888";
+        }
+    }
+</script>
+
+</body>
+</html>
