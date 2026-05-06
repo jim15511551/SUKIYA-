@@ -99,8 +99,6 @@
     </div>
 </div>
 
-<script src="data.js"></script>
-
 <script>
     // 網頁載入時，把 data.js 裡的車站名單塞進下拉選單
     window.onload = function() {
@@ -109,8 +107,7 @@
             return;
         }
         
-        // 將清單按筆畫或拼音排序，方便尋找
-        stationList.sort();
+        // 注意：這裡已經移除了自動排序，現在會完全按照 Excel 的 C, D, E 欄位順序顯示
 
         let startSelect = document.getElementById("startStation");
         let endSelect = document.getElementById("endStation");
@@ -128,7 +125,6 @@
         });
     };
 
-    // 完美重現你原本的 VBA 加強匹配邏輯
     function calculateTime() {
         let start = document.getElementById("startStation").value;
         let end = document.getElementById("endStation").value;
@@ -148,15 +144,13 @@
         }
 
         let maxTime = 0;
-        let key1 = start + "|" + end; // 正向查找鍵值
-        let key2 = end + "|" + start; // 反向查找鍵值
+        let key1 = start + "|" + end; 
+        let key2 = end + "|" + start; 
 
-        // 正向查找
         if (timeMatrix[key1] !== undefined) {
             if (timeMatrix[key1] > maxTime) maxTime = timeMatrix[key1];
         }
 
-        // 反向查找
         if (timeMatrix[key2] !== undefined) {
             if (timeMatrix[key2] > maxTime) maxTime = timeMatrix[key2];
         }
@@ -164,9 +158,7 @@
         resultBox.style.display = "block";
 
         if (maxTime > 0) {
-            // 將分鐘轉換為小時，並取到小數點後兩位
             let hours = maxTime / 60;
-            // 處理浮點數顯示，若為整數則不顯示小數
             let displayHours = Number.isInteger(hours) ? hours : hours.toFixed(2); 
             timeValue.innerHTML = displayHours + " <span style='font-size:18px;'>小時</span>";
             timeValue.style.color = "#e50012";
