@@ -22,6 +22,14 @@
             text-align: center;
             color: #333;
             margin-top: 0;
+            margin-bottom: 10px;
+        }
+        /* 新增：更新時間的文字風格 */
+        .update-time {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 20px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -38,14 +46,14 @@
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            appearance: none; /* 讓手機下拉選單更好看 */
+            appearance: none;
             background-color: #fff;
         }
         button {
             width: 100%;
             padding: 14px;
             font-size: 18px;
-            background-color: #e50012; /* Sukiya 紅色風格 */
+            background-color: #e50012;
             color: white;
             border: none;
             border-radius: 6px;
@@ -62,7 +70,7 @@
             border-left: 5px solid #e50012;
             border-radius: 4px;
             text-align: center;
-            display: none; /* 初始隱藏 */
+            display: none;
         }
         .result-time {
             font-size: 32px;
@@ -76,6 +84,9 @@
 
 <div class="container">
     <h2>⏱️ 移動時間查詢</h2>
+    
+    <!-- 新增：顯示更新時間的區塊 -->
+    <div class="update-time" id="showUpdateTime">最後更新時間：載入中...</div>
     
     <div class="form-group">
         <label for="startStation">出發起站</label>
@@ -99,15 +110,22 @@
     </div>
 </div>
 
+<script src="data.js"></script>
+
 <script>
-    // 網頁載入時，把 data.js 裡的車站名單塞進下拉選單
     window.onload = function() {
         if (typeof stationList === 'undefined') {
-            alert("找不到資料檔 (data.js)，請確認檔案是否放在同一資料夾！");
+            alert("找不到資料檔 (data.js)，請確認檔案是否上傳成功！");
             return;
         }
         
-        // 注意：這裡已經移除了自動排序，現在會完全按照 Excel 的 C, D, E 欄位順序顯示
+        // ▼▼▼ 新增：將 data.js 裡的時間顯示到畫面上 ▼▼▼
+        let updateText = document.getElementById("showUpdateTime");
+        if (typeof lastUpdated !== 'undefined') {
+            updateText.innerText = "資料最後更新：" + lastUpdated;
+        } else {
+            updateText.innerText = ""; // 如果舊版資料沒時間，就先留白
+        }
 
         let startSelect = document.getElementById("startStation");
         let endSelect = document.getElementById("endStation");
